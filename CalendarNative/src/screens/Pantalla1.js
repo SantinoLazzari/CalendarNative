@@ -13,15 +13,9 @@ export default function Pantalla1() {
 
   const handleGuardarEvento = async () => {
     try {
-      const granted = await CalendarEvents.requestPermissions(); // Solicitar permisos
-      if (granted === 'authorized') {
-        // Permisos otorgados, puedes continuar
-        await CalendarEvents.saveEvent('Agregar evento', evento);
-        Alert.alert('Evento agregado con éxito');
-      } else {
-        // Permisos no otorgados, muestra un mensaje de error
-        Alert.alert('Error', 'No se han otorgado permisos para acceder al calendario.');
-      }
+      await CalendarEvents.requestPermissions(); // Solicitar permisos
+      await CalendarEvents.saveEvent('Agregar evento', evento);
+      Alert.alert('Evento agregado con éxito');
     } catch (error) {
       console.error('Error al agregar el evento:', error);
       Alert.alert('Error al agregar el evento');
@@ -53,6 +47,18 @@ export default function Pantalla1() {
         placeholder="Fecha de finalización (yyyy-mm-dd HH:mm:ss)"
         value={evento.endDate}
         onChangeText={(text) => setEvento({ ...evento, endDate: text })}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Ubicación"
+        value={evento.location}
+        onChangeText={(text) => setEvento({ ...evento, location: text })}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Notas"
+        value={evento.notes}
+        onChangeText={(text) => setEvento({ ...evento, notes: text })}
       />
       <Button title="Guardar Evento" onPress={handleGuardarEvento} />
       <Button title="Ver datos" onPress={handleAsyncStorage} />
