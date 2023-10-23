@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Button, TextInput, Alert } from 'react-native';
+import { View, Text, Button, TextInput, Alert, TouchableOpacity, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Calendar from 'expo-calendar';
 
@@ -9,31 +9,32 @@ const AddEventScreen = ({ navigation }) => {
   const [endDate, setEndDate] = useState(new Date());
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [calendarName, setCalendarName] = useState('');
 
   const addEventToIOSCalendar = async () => {
     const { status } = await Calendar.requestCalendarPermissionsAsync();
 
     if (status === 'granted') {
       const calendars = await Calendar.getCalendarsAsync();
-      const defaultCalendar = calendars.find(calendar => calendar.title === 'tomas.avola@gmail.com');
+      const selectedCalendar = calendars.find(calendar => calendar.title === calendarName);
 
-      if (defaultCalendar) {
+      if (selectedCalendar) {
         const eventDetails = {
           title,
           startDate,
           endDate,
-          calendarId: defaultCalendar.id,
+          calendarId: selectedCalendar.id,
         };
 
         try {
-          await Calendar.createEventAsync(defaultCalendar.id, eventDetails);
+          await Calendar.createEventAsync(selectedCalendar.id, eventDetails);
           Alert.alert('Éxito', 'El evento se ha agregado al calendario de iOS correctamente.');
         } catch (error) {
           console.error('Error al agregar el evento al calendario de iOS:', error);
           Alert.alert('Error', 'Hubo un problema al agregar el evento al calendario de iOS.');
         }
       } else {
-        Alert.alert('Error', 'No se encontró el calendario predeterminado en tu dispositivo.');
+        Alert.alert('Error', `No se encontró el calendario "${calendarName}" en tu dispositivo.`);
       }
     } else {
       Alert.alert('Error', 'No se concedieron los permisos de calendario.');
@@ -65,17 +66,31 @@ const AddEventScreen = ({ navigation }) => {
   };
 
   return (
-    <View>
+    <View style={styles.container}>
       <TextInput
-        placeholder="Event title"
+        style={styles.input}
+        placeholder="Nombre del calendario"
+        value={calendarName}
+        onChangeText={text => setCalendarName(text)}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Título del evento"
         value={title}
         onChangeText={text => setTitle(text)}
       />
-      <Button title="Seleccionar Fecha de Inicio" onPress={showStartDatePickerModal} />
-      <Button title="Seleccionar Fecha de Fin" onPress={showEndDatePickerModal} />
-      <Button title="Add Event to iOS Calendar" onPress={addEventToIOSCalendar} />
-      <Button title="Ver Eventos" onPress={navigateToViewEvents} />
-
+      <TouchableOpacity style={styles.button} onPress={showStartDatePickerModal}>
+        <Text style={styles.buttonText}>Seleccionar Fecha de Inicio</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={showEndDatePickerModal}>
+        <Text style={styles.buttonText}>Seleccionar Fecha de Fin</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.addButton} onPress={addEventToIOSCalendar}>
+        <Text style={styles.buttonText}>Agregar Evento al Calendario de iOS</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.viewButton} onPress={navigateToViewEvents}>
+        <Text style={styles.buttonText}>Ver Eventos</Text>
+      </TouchableOpacity>
       {showStartDatePicker && (
         <DateTimePicker
           value={startDate}
@@ -85,7 +100,6 @@ const AddEventScreen = ({ navigation }) => {
           onChange={onStartDateChange}
         />
       )}
-
       {showEndDatePicker && (
         <DateTimePicker
           value={endDate}
@@ -98,5 +112,40 @@ const AddEventScreen = ({ navigation }) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 15,
+    padding: 10,
+  },
+  button: {
+    backgroundColor: '#3498db',
+    padding: 15,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  addButton: {
+    backgroundColor: '#27ae60',
+    padding: 15,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  viewButton: {
+    backgroundColor: '#e74c3c',
+    padding: 15,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: 'white',
+    textAlign: 'center',
+  },
+});
 
 export default AddEventScreen;
