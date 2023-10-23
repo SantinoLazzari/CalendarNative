@@ -28,10 +28,10 @@ const AddEventScreen = ({ navigation }) => {
 
         try {
           await Calendar.createEventAsync(selectedCalendar.id, eventDetails);
-          Alert.alert('Éxito', 'El evento se ha agregado al calendario de iOS correctamente.');
+          Alert.alert('Éxito', 'El evento se ha agregado al calendario correctamente.');
         } catch (error) {
-          console.error('Error al agregar el evento al calendario de iOS:', error);
-          Alert.alert('Error', 'Hubo un problema al agregar el evento al calendario de iOS.');
+          console.error('Error al agregar el evento al calendario :', error);
+          Alert.alert('Error', 'Hubo un problema al agregar el evento al calendario.');
         }
       } else {
         Alert.alert('Error', `No se encontró el calendario "${calendarName}" en tu dispositivo.`);
@@ -86,7 +86,7 @@ const AddEventScreen = ({ navigation }) => {
         <Text style={styles.buttonText}>Seleccionar Fecha de Fin</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.addButton} onPress={addEventToIOSCalendar}>
-        <Text style={styles.buttonText}>Agregar Evento al Calendario de iOS</Text>
+        <Text style={styles.buttonText}>Agregar Evento al Calendario</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.viewButton} onPress={navigateToViewEvents}>
         <Text style={styles.buttonText}>Ver Eventos</Text>
