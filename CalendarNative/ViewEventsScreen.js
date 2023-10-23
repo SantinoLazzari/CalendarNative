@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Button, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import * as Calendar from 'expo-calendar';
 
 const ViewEventsScreen = ({ navigation }) => {
@@ -27,6 +27,17 @@ const ViewEventsScreen = ({ navigation }) => {
     navigation.navigate('AddEvent');
   };
 
+  const handleDeleteEvent = async (eventId) => {
+    try {
+      await Calendar.deleteEventAsync(eventId);
+      // Actualiza la lista de eventos después de eliminar uno
+      setEvents(events.filter(event => event.id !== eventId));
+    } catch (error) {
+      console.error('Error al eliminar el evento:', error);
+      Alert.alert('Error', 'Hubo un problema al eliminar el evento.');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Eventos del Calendario:</Text>
@@ -34,15 +45,18 @@ const ViewEventsScreen = ({ navigation }) => {
         data={events}
         keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.eventContainer}
-            onPress={() => handleEventPress(item)}
-          >
+          <View style={styles.eventContainer}>
             <Text style={styles.eventTitle}>{item.title}</Text>
             <Text style={styles.eventDate}>
               Fecha: {new Date(item.startDate).toDateString()}
             </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => handleDeleteEvent(item.id)}
+            >
+              <Text style={styles.deleteButtonText}>Eliminar</Text>
+            </TouchableOpacity>
+          </View>
         )}
       />
       <TouchableOpacity style={styles.addButton} onPress={navigateToAddEvent}>
@@ -68,6 +82,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   eventTitle: {
     fontSize: 16,
@@ -80,6 +97,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#3498db',
     padding: 15,
     borderRadius: 5,
+  },
+  deleteButton: {
+    backgroundColor: '#e74c3c',
+    padding: 5,
+    borderRadius: 5,
+  },
+  deleteButtonText: {
+    color: 'white',
   },
   buttonText: {
     color: 'white',
